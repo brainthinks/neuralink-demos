@@ -25,7 +25,11 @@
  * configured temporal resolution.
  */
 
-import React, { useEffect, useState } from 'react';
+import {
+  useEffect,
+  useState,
+  useRef,
+} from 'react';
 
 import Frame from '../models/Frame';
 import {
@@ -99,6 +103,7 @@ function generateFrame (frame, padding = DEFAULT_PADDING) {
 
 const SpikePlot = (props) => {
   const {
+    startTime,
     // how many frames per second
     laceFrequency,
     // how many data points per frame
@@ -126,7 +131,7 @@ const SpikePlot = (props) => {
   const paddedHeight = height + (padding * 2);
 
   // we use a ref to access the canvas' DOM node
-  const canvasRef = React.useRef(null);
+  const canvasRef = useRef(null);
 
   useEffect(() => {
     console.log('canvas ref changed');
@@ -155,8 +160,11 @@ const SpikePlot = (props) => {
 
     canvasContext.putImageData(frameImageData, frameDisplayIndex, 0);
 
-    if (frameCount % (width) === 0) {
+    if (frameCount % width === 0) {
       setFrameDisplayIndex(0);
+
+      // console.log(frameCount, width, frameCount % width)
+      // console.log((Date.now() - startTime) / 1000)
     }
     else {
       canvasContext.putImageData(trackerBar, frameDisplayIndex + 1, 0);

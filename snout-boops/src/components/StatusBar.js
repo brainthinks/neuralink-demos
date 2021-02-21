@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import humanize from 'humanize';
 import moment from 'moment';
 
@@ -21,29 +21,45 @@ function StatusBar (props) {
     isMonitoring,
   } = props;
 
+  const [ monitorInterval, setMonitorInterval ] = useState(null);
   const [ startTime, setStartTime ] = useState(null);
+  const [ lastStoppedTime, setLastStoppedTime ] = useState(null);
   const [ monitorDuration, setMonitorDuration ] = useState('00:00:00');
   const [ heapSizeLimit, setHeapSizeLimit ] = useState(getMemoryInfo('jsHeapSizeLimit'));
   const [ totalHeapSize, setTotalHeapSize ] = useState(getMemoryInfo('totalJSHeapSize'));
   const [ usedHeapSize, setUsedHeapSize ] = useState(getMemoryInfo('usedJSHeapSize'));
 
   useEffect(() => {
-    if (!isMonitoring) {
-      return;
-    }
-
-    setStartTime(Date.now());
-  }, [isMonitoring]);
-
-  useEffect(() => {
     if (!startTime) {
+      if (isMonitoring) {
+        setStartTime(Date.now());
+        return;
+      }
+
       console.log('Waiting until monitoring begins to update status');
       return;
     }
 
-    console.log('monitoring...')
+    if (!isMonitoring) {
+      if (monitorInterval !== null) {
+        clearInterval(monitorInterval);
+        setMonitorInterval(null);
 
-    setTimeout(() => {
+        setLastStoppedTime(Date.now());
+      }
+
+      console.log(isMonitoring, startTime, monitorDuration, monitorInterval)
+      console.log('no longer monitoring');
+      return;
+    }
+
+    if (lastStoppedTime !== null) {
+      setStartTime(startTime + (Date.now() - lastStoppedTime));
+      setLastStoppedTime(null);
+      return;
+    }
+
+    setMonitorInterval(setInterval(() => {
       const now = Date.now();
 
       const hoursFromStart = Math.floor(moment.duration(now - startTime).asHours());
@@ -56,11 +72,13 @@ function StatusBar (props) {
         formatTimeSegment(minutesFromStart),
         formatTimeSegment(secondsFromStart),
       ].join(':'));
+
+      // @todo - these could be split into a separate effect
       setHeapSizeLimit(getMemoryInfo('jsHeapSizeLimit'));
       setTotalHeapSize(getMemoryInfo('totalJSHeapSize'));
       setUsedHeapSize(getMemoryInfo('usedJSHeapSize'));
-    }, 1000);
-  }, [startTime, monitorDuration]);
+    }, 500));
+  }, [isMonitoring, startTime]);
 
   return (
     <section className="statusBar">

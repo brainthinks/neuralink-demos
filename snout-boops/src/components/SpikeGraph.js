@@ -8,7 +8,11 @@
  * implement logic for floor
  */
 
-import React, { useEffect, useState } from 'react';
+import {
+  useEffect,
+  useState,
+  useRef,
+} from 'react';
 
 import Frame from '../models/Frame';
 import {
@@ -101,7 +105,7 @@ function SpikeGraph (props) {
   const paddedHeight = height + (padding * 2);
 
   // we use a ref to access the canvas' DOM node
-  const canvasRef = React.useRef(null);
+  const canvasRef = useRef(null);
 
   useEffect(() => {
     console.log('canvas ref changed');
