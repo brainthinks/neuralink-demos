@@ -8,6 +8,7 @@
     "@testing-library/user-event": "^12.1.10",
     "classnames": "^2.2.6",
     "humanize": "^0.0.9",
+    "mainloop.js": "^1.0.4",
     "moment": "^2.29.1",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",

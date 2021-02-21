@@ -10,6 +10,17 @@ import {
   useEffect,
   useState,
 } from 'react';
+
+/**
+ * MainLoop is used for significantly better timing precision.  It still isn't
+ * pefect, as it drifts approximately 0.05 seconds every 10 seconds, but it is
+ * far better than using setInterval, which drifted approximately 0.2 seconds
+ * every 10 seconds.
+ *
+ * With setInterval, the drift is noticable in under a minute.
+ * With MainLoop, the drift is noticable only after about 5 minutes.
+ */
+import MainLoop from 'mainloop.js';
 // import classNames from 'classnames';
 
 import Frame from '../models/Frame';
@@ -23,6 +34,8 @@ import './App.css';
 const SUBJECT_NAME = 'Gertie';
 const FRAME_SERVER_URL = 'http://localhost:8080';
 // The neural lace sends data units 60 times/second
+// @todo - since mainloop uses monitor refresh rate to determine the frequency
+// at which it calls
 const LACE_FREQUENCY = 60;
 // Each neural lace sends this many discrete values at the configured frequency
 const LACE_BANDWIDTH = 1024;
@@ -36,11 +49,8 @@ const DEFAULT_TRACKER_WIDTH = 3;
 // plot canvas element.  There is no need to use this in production.
 const DEFAULT_PADDING = 0;
 
-const startTime = Date.now()
-
 function App () {
-  const [ fetchInterval, setFetchInterval ] = useState(null);
-  const [ isMonitoring, setIsMonitoring ] = useState(true);
+  const [ isMonitoring, setIsMonitoring ] = useState(false);
   const [ nextFrame, setNextFrame ] = useState(null);
 
   async function getNextFrame () {
@@ -55,24 +65,12 @@ function App () {
 
   useEffect(() => {
     if (!isMonitoring) {
-      if (fetchInterval !== null) {
-        clearInterval(fetchInterval);
-        // setFetchInterval(null);
-        cancelAnimationFrame(fetchInterval);
-      }
+      MainLoop.stop();
 
       return;
     }
 
-    // Request the next frame at the same frequency as they are taken from the
-    // lace.
-    // @todo - the frames should be recevied via push events from the server
-    // @todo - This drifts by approximately 200 milliseconds every 10 seconds
-    setFetchInterval(setInterval(
-      getNextFrame,
-      1000 / LACE_FREQUENCY
-      // Math.floor((1000 / LACE_FREQUENCY * 10000000000))/ 10000000000,
-    ));
+    MainLoop.setBegin(getNextFrame).start();
   }, [isMonitoring]);
 
   return (
@@ -85,7 +83,6 @@ function App () {
       <section className="spike-visualization">
         <div className="spike-plot">
           <SpikePlot
-            startTime={startTime}
             laceFrequency={LACE_FREQUENCY}
             laceBandwidth={LACE_BANDWIDTH}
             plotTime={DISPLAY_DURATION}

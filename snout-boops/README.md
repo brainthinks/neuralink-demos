@@ -6,3 +6,7 @@ The interface appeared in the following videos:
 
 * [https://www.youtube.com/watch?v=DVvmgjBL74w](https://www.youtube.com/watch?v=DVvmgjBL74w)
 * [https://www.youtube.com/watch?v=iSutodqCZ74](https://www.youtube.com/watch?v=iSutodqCZ74)
+
+## Known limitations
+
+* supports only 60Hz

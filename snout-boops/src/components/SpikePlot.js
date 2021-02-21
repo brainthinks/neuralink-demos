@@ -162,9 +162,6 @@ const SpikePlot = (props) => {
 
     if (frameCount % width === 0) {
       setFrameDisplayIndex(0);
-
-      // console.log(frameCount, width, frameCount % width)
-      // console.log((Date.now() - startTime) / 1000)
     }
     else {
       canvasContext.putImageData(trackerBar, frameDisplayIndex + 1, 0);
