@@ -12,17 +12,8 @@
  * Known limitations:
  *
  * There is no scaling factor.  Each frame has a width one pixel and a height
- * equal to the number of lace channels (electrodes).
- *
- * @todo:
- *
- * fix the timer.
- *
- * canvas stops when tab not in focus?
- *
- * the frames are updated as they come in - need to make them update at a
- * specific frequency to ensure that the x axis correctly corresponds to the
- * configured temporal resolution.
+ * equal to the number of lace channels (electrodes).  Supporting this scaling
+ * feature is not planned, but I thought it was worth noting.
  */
 
 import {

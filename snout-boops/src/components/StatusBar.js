@@ -48,7 +48,6 @@ function StatusBar (props) {
         setLastStoppedTime(Date.now());
       }
 
-      console.log(isMonitoring, startTime, monitorDuration, monitorInterval)
       console.log('no longer monitoring');
       return;
     }

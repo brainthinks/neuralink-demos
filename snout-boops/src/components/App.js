@@ -1,11 +1,3 @@
-/**
- * @todo:
- *
- * gracefully handle network failure!
- *
- * because the graph and plot are independent, they can become out of sync.
- * make their updates time based or something...
- */
 import {
   useEffect,
   useState,
@@ -23,6 +15,8 @@ import {
 import MainLoop from 'mainloop.js';
 // import classNames from 'classnames';
 
+import { usePageVisibility } from '../effects/page-visibility';
+
 import Frame from '../models/Frame';
 import ControlBar from './ControlBar';
 import StatusBar from './StatusBar';
@@ -34,13 +28,12 @@ import './App.css';
 const SUBJECT_NAME = 'Gertie';
 const FRAME_SERVER_URL = 'http://localhost:8080';
 // The neural lace sends data units 60 times/second
-// @todo - since mainloop uses monitor refresh rate to determine the frequency
-// at which it calls
+// @todo - since MainLoop.js uses monitor refresh rate to determine the
+// frequency at which it calls
 const LACE_FREQUENCY = 60;
 // Each neural lace sends this many discrete values at the configured frequency
 const LACE_BANDWIDTH = 1024;
 // How many seconds worth of data are we going to show
-// @todo - this should be dynamic based on viewable area
 const DISPLAY_DURATION = 10;
 
 const DEFAULT_TRACKER_WIDTH = 3;
@@ -50,6 +43,7 @@ const DEFAULT_TRACKER_WIDTH = 3;
 const DEFAULT_PADDING = 0;
 
 function App () {
+  const isVisible = usePageVisibility();
   const [ isMonitoring, setIsMonitoring ] = useState(false);
   const [ nextFrame, setNextFrame ] = useState(null);
 
@@ -58,26 +52,39 @@ function App () {
       Frame.setUrl(FRAME_SERVER_URL);
     }
 
-    const frame = await Frame.getNextFrame();
+    if (!Frame.isElectrodeCountConfigured()) {
+      Frame.setElectrodeCount(LACE_BANDWIDTH);
+    }
 
-    setNextFrame(frame);
+    try {
+      const frame = await Frame.getNextFrame();
+
+      setNextFrame(frame);
+    }
+    catch (error) {
+      // @todo - display error message to user
+      console.error(error);
+      setIsMonitoring(false);
+    }
   }
 
   useEffect(() => {
-    if (!isMonitoring) {
+    if (!isVisible || !isMonitoring) {
       MainLoop.stop();
+      document.title = "Monitoring Paused...";
 
       return;
     }
 
     MainLoop.setBegin(getNextFrame).start();
-  }, [isMonitoring]);
+    document.title = "Monitoring your neural lace!"
+  }, [isVisible, isMonitoring]);
 
   return (
     <div className="App">
       <ControlBar
         name={SUBJECT_NAME}
-        isMonitoring={isMonitoring}
+        isMonitoring={isVisible && isMonitoring}
         setIsMonitoring={setIsMonitoring}
       />
       <section className="spike-visualization">
@@ -103,7 +110,7 @@ function App () {
         </div>
       </section>
       <StatusBar
-        isMonitoring={isMonitoring}
+        isMonitoring={isVisible && isMonitoring}
       />
     </div>
   );
