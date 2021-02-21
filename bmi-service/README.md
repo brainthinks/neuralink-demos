@@ -1,7 +1,8 @@
 # BMI Service
 
-* 1024 electrodes
-* each electrode is read / sampled at 60 Hz
+A tiny service with a single endpoint that generates random data which is returned as a "frame".  A "frame" in this context is defined as a neural lace reading of all electrodes at a single point in time.
+
+My understanding is that the current neural laces have 1024 channels/electrodes and sample at a frequency of 60Hz.
 
 ## @todo
 
