@@ -3,11 +3,14 @@
 ## Table of Contents <!-- omit in toc -->
 
 - [Unreleased](#unreleased)
+- [v0.2.2 - 2021-02-21](#v022---2021-02-21)
 - [v0.2.1 - 2021-02-21](#v021---2021-02-21)
 - [v0.2.0 - 2021-02-21](#v020---2021-02-21)
 - [v0.1.0 - 2021-02-21](#v010---2021-02-21)
 
 ## Unreleased
+
+## v0.2.2 - 2021-02-21
 
 * stop monitoring when the page is hidden since the canvas doesn't get updated
 * properly handle network / server failure
