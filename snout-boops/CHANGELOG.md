@@ -2,10 +2,15 @@
 
 ## Table of Contents <!-- omit in toc -->
 
-- [Unreleased](#unreleased)
+- [v0.2.1 - 2021-02-21](#v021---2021-02-21)
+- [v0.2.0 - 2021-02-21](#v020---2021-02-21)
 - [v0.1.0 - 2021-02-21](#v010---2021-02-21)
 
-## Unreleased
+## v0.2.1 - 2021-02-21
+
+* improve plot and graph timing by implementing MainLoop.js
+
+## v0.2.0 - 2021-02-21
 
 * name project
 * fix performance problems by using canvas rather than DOM elements
