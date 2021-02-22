@@ -2,7 +2,27 @@ import { useEffect, useState } from 'react';
 import humanize from 'humanize';
 import moment from 'moment';
 
-function getMemoryInfo (property) {
+enum PerformanceMemoryProperties {
+  jsHeapSizeLimit = 'jsHeapSizeLimit',
+  totalJSHeapSize = 'totalJSHeapSize',
+  usedJSHeapSize = 'usedJSHeapSize',
+}
+
+interface Props {
+  isMonitoring: boolean;
+}
+
+// @see - https://stackoverflow.com/a/43513740
+// @see - https://www.typescriptlang.org/docs/handbook/declaration-merging.html#global-augmentation
+declare global {
+  interface Window {
+    performance: {
+      memory: any;
+    }
+  }
+}
+
+function getMemoryInfo (property: PerformanceMemoryProperties): string {
   if (window.performance.memory) {
     return humanize.filesize(window.performance.memory[property]);
   }
@@ -10,24 +30,24 @@ function getMemoryInfo (property) {
   return 'N/A';
 }
 
-function formatTimeSegment (value) {
+function formatTimeSegment (value: number): string {
   return value < 10
     ? `0${value}`
-    : value;
+    : value.toString();
 }
 
-function StatusBar (props) {
+function StatusBar (props: Props) {
   const {
     isMonitoring,
   } = props;
 
-  const [ monitorInterval, setMonitorInterval ] = useState(null);
-  const [ startTime, setStartTime ] = useState(null);
-  const [ lastStoppedTime, setLastStoppedTime ] = useState(null);
+  const [ monitorInterval, setMonitorInterval ] = useState<NodeJS.Timeout|null>(null);
+  const [ startTime, setStartTime ] = useState<number|null>(null);
+  const [ lastStoppedTime, setLastStoppedTime ] = useState<number|null>(null);
   const [ monitorDuration, setMonitorDuration ] = useState('00:00:00');
-  const [ heapSizeLimit, setHeapSizeLimit ] = useState(getMemoryInfo('jsHeapSizeLimit'));
-  const [ totalHeapSize, setTotalHeapSize ] = useState(getMemoryInfo('totalJSHeapSize'));
-  const [ usedHeapSize, setUsedHeapSize ] = useState(getMemoryInfo('usedJSHeapSize'));
+  const [ heapSizeLimit, setHeapSizeLimit ] = useState(getMemoryInfo(PerformanceMemoryProperties.jsHeapSizeLimit));
+  const [ totalHeapSize, setTotalHeapSize ] = useState(getMemoryInfo(PerformanceMemoryProperties.totalJSHeapSize));
+  const [ usedHeapSize, setUsedHeapSize ] = useState(getMemoryInfo(PerformanceMemoryProperties.usedJSHeapSize));
 
   useEffect(() => {
     if (!startTime) {
@@ -73,9 +93,9 @@ function StatusBar (props) {
       ].join(':'));
 
       // @todo - these could be split into a separate effect
-      setHeapSizeLimit(getMemoryInfo('jsHeapSizeLimit'));
-      setTotalHeapSize(getMemoryInfo('totalJSHeapSize'));
-      setUsedHeapSize(getMemoryInfo('usedJSHeapSize'));
+      setHeapSizeLimit(getMemoryInfo(PerformanceMemoryProperties.jsHeapSizeLimit));
+      setTotalHeapSize(getMemoryInfo(PerformanceMemoryProperties.totalJSHeapSize));
+      setUsedHeapSize(getMemoryInfo(PerformanceMemoryProperties.usedJSHeapSize));
     }, 500));
   }, [isMonitoring, startTime]);
 

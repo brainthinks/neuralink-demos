@@ -11,6 +11,7 @@ The interface appeared in the following videos:
 
 * plot and graph components only support 60Hz
 * the floor of the spike graph is not configurable
+* no boop sounds :(
 
 ## @todo
 
