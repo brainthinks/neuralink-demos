@@ -1,10 +1,24 @@
 {
   "name": "bmi-service",
   "version": "0.1.0",
+  "engines": {
+    "node": ">=8.10.0"
+  },
   "scripts": {
-    "serve": "node index.js"
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "watch": "ts-node-dev --respawn src/index.ts"
   },
   "dependencies": {
     "express": "4.17.1"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.11",
+    "@types/node": "^14.14.31",
+    "@typescript-eslint/eslint-plugin": "^4.15.2",
+    "@typescript-eslint/parser": "^4.15.2",
+    "eslint": "^7.21.0",
+    "eslint-plugin-node": "^11.1.0",
+    "ts-node-dev": "^1.1.6",
+    "typescript": "^4.2.2"
   }
 }
