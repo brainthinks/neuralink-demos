@@ -1,12 +1,15 @@
-'use strict';
+// @see - https://stackoverflow.com/a/63633593
+import express from 'express';
 
-const express = require('express');
 const app = express();
 const port = 8080;
 
+type Spike = boolean;
+type Spikes = boolean[];
+
 // @todo - these should be passed to the client
 const ELECTRODE_COUNT = 1024;
-const SAMPLING_FREQENCY = 60;
+// const SAMPLING_FREQENCY = 60;
 
 /**
  * Randomly generate whether or not a spike was detected.
@@ -17,7 +20,7 @@ const SAMPLING_FREQENCY = 60;
  *   `true` if a spike was detected
  *   `false` if a spike was not detected
  */
-function generateSpike (index) {
+function generateSpike (index: number): Spike {
   if (index % 13 === 0) {
     // detect a spike more frequently
     return Math.floor(Math.random() * 10) === 1;
@@ -38,8 +41,8 @@ function generateSpike (index) {
  * @returns Array
  *   An array indicating which electrodes had spikes
  */
-function generateElectrodeOutput () {
-  const output = [];
+function generateElectrodeOutput (): Spikes {
+  const output: Spikes = [];
 
   for (let i = 0; i < ELECTRODE_COUNT; i++) {
     output.push(generateSpike(i));
@@ -49,7 +52,7 @@ function generateElectrodeOutput () {
 }
 
 // @todo - use express middleware
-function allowCors (res) {
+function allowCors (res: express.Response): void {
   // @see - https://stackoverflow.com/a/66242926
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET');
@@ -65,3 +68,5 @@ app.get('/', (req, res) => {
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);
 });
+
+export {};
