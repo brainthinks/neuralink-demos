@@ -20,7 +20,12 @@ import {
   generateTrackerBar,
 } from './utils';
 
-function generateFrame (frame, floor, ceiling, padding = DEFAULT_PADDING) {
+function generateFrame (
+  frame: Frame,
+  floor: number,
+  ceiling: number,
+  padding = DEFAULT_PADDING,
+) {
   floor = Number(floor);
   ceiling = Number(ceiling);
   padding = Number(padding);
@@ -43,7 +48,7 @@ function generateFrame (frame, floor, ceiling, padding = DEFAULT_PADDING) {
   const paddedHeight = height + (padding * 2);
   const arr = new Uint8ClampedArray(width * paddedHeight * 4);
 
-  const spikeCount = frame.getSpikeCount();
+  const spikeCount = frame.spikeCount;
 
   for (let i = 0; i < arr.length; i += 4) {
     arr[i + 3] = 255;  // A value
@@ -71,19 +76,28 @@ function generateFrame (frame, floor, ceiling, padding = DEFAULT_PADDING) {
   return new ImageData(arr, width, paddedHeight);
 }
 
-function SpikeGraph (props) {
+interface SpikeGraphProps {
+  // how many frames per second
+  laceFrequency: number,
+  // how many data points per frame
+  laceBandwidth: number,
+  // how many seconds should the plot display at one time
+  plotTime: number,
+  // padding in pixels for the top and bottom of the plot
+  padding: number,
+  // width in pixels for the tracker
+  trackerWidth: number,
+  // the frame to append to the plot
+  frame: Frame,
+}
+
+function SpikeGraph (props: SpikeGraphProps) {
   const {
-    // how many frames per second
     laceFrequency,
-    // how many data points per frame
-    laceBandwidth,
-    // how many seconds should the plot display at one time
+    // laceBandwidth,
     plotTime,
-    // padding in pixels for the top and bottom of the plot
     padding,
-    // width in pixels for the tracker
     trackerWidth,
-    // the frame to append to the plot
     frame,
   } = props;
 
@@ -92,8 +106,8 @@ function SpikeGraph (props) {
   // The index to use to display the current frame
   const [frameDisplayIndex, setFrameDisplayIndex] = useState(0);
   // The HTML canvas 2d context that the frames will be drawn to
-  const [canvasContext, setCanvasContext] = useState(null);
-  const [trackerBar, setTrackerBar] = useState(null);
+  const [canvasContext, setCanvasContext] = useState<CanvasRenderingContext2D | null>(null);
+  const [trackerBar, setTrackerBar] = useState<ImageData | null>(null);
 
   // @todo - can this range be dynamic?
   const floor = 0;
@@ -105,12 +119,12 @@ function SpikeGraph (props) {
   const paddedHeight = height + (padding * 2);
 
   // we use a ref to access the canvas' DOM node
-  const canvasRef = useRef(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
     console.log('canvas ref changed');
 
-    if (!canvasRef.current) {
+    if (!canvasRef?.current) {
       console.log('canvas not yet loaded');
       return;
     }
@@ -120,13 +134,18 @@ function SpikeGraph (props) {
   }, [canvasRef]);
 
   useEffect(() => {
-    if (frame === null) {
+    if (!frame) {
       console.log('waiting for next frame');
       return;
     }
 
-    if (canvasContext === null) {
+    if (!canvasContext) {
       console.log('waiting for canvas');
+      return;
+    }
+
+    if (!trackerBar) {
+      console.log('tracker bar not ready');
       return;
     }
 

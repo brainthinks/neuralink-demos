@@ -17,6 +17,7 @@ import MainLoop from 'mainloop.js';
 
 import { usePageVisibility } from '../effects/page-visibility';
 
+import FrameService from '../models/FrameService';
 import Frame from '../models/Frame';
 import ControlBar from './ControlBar';
 import StatusBar from './StatusBar';
@@ -26,7 +27,9 @@ import SpikeGraph from './SpikeGraph';
 import './App.css';
 
 const SUBJECT_NAME = 'Gertie';
-const FRAME_SERVER_URL = 'http://localhost:8080';
+const FRAME_SERVER_URL = 'local';
+// const FRAME_SERVER_URL = 'http://localhost:8080';
+
 // The neural lace sends data units 60 times/second
 // @todo - since MainLoop.js uses monitor refresh rate to determine the
 // frequency at which it calls
@@ -42,22 +45,16 @@ const DEFAULT_TRACKER_WIDTH = 3;
 // plot canvas element.  There is no need to use this in production.
 const DEFAULT_PADDING = 0;
 
+const frameService = FrameService.asSingleton(FRAME_SERVER_URL, LACE_BANDWIDTH);
+
 function App () {
   const isVisible = usePageVisibility();
   const [ isMonitoring, setIsMonitoring ] = useState(false);
-  const [ nextFrame, setNextFrame ] = useState(null);
+  const [ nextFrame, setNextFrame ] = useState<Frame|null>(null);
 
   async function getNextFrame () {
-    if (!Frame.isFrameServerConfigured()) {
-      Frame.setUrl(FRAME_SERVER_URL);
-    }
-
-    if (!Frame.isElectrodeCountConfigured()) {
-      Frame.setElectrodeCount(LACE_BANDWIDTH);
-    }
-
     try {
-      const frame = await Frame.getNextFrame();
+      const frame = await frameService.getNextFrame();
 
       setNextFrame(frame);
     }
@@ -95,7 +92,7 @@ function App () {
             plotTime={DISPLAY_DURATION}
             padding={DEFAULT_PADDING}
             trackerWidth={DEFAULT_TRACKER_WIDTH}
-            frame={nextFrame}
+            frame={nextFrame as Frame}
           />
         </div>
         <div className="spike-graph">
@@ -105,7 +102,7 @@ function App () {
             plotTime={DISPLAY_DURATION}
             padding={DEFAULT_PADDING}
             trackerWidth={DEFAULT_TRACKER_WIDTH}
-            frame={nextFrame}
+            frame={nextFrame as Frame}
           />
         </div>
       </section>

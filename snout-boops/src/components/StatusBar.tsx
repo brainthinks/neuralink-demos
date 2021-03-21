@@ -12,16 +12,6 @@ interface Props {
   isMonitoring: boolean;
 }
 
-// @see - https://stackoverflow.com/a/43513740
-// @see - https://www.typescriptlang.org/docs/handbook/declaration-merging.html#global-augmentation
-declare global {
-  interface Window {
-    performance: {
-      memory: any;
-    }
-  }
-}
-
 function getMemoryInfo (property: PerformanceMemoryProperties): string {
   if (window.performance.memory) {
     return humanize.filesize(window.performance.memory[property]);

@@ -46,9 +46,7 @@ import {
  * @returns {ImageData}
  *   The frame as an ImageData instance that can be applied to a canvas
  */
-function generateFrame (frame, padding = DEFAULT_PADDING) {
-  padding = Number(padding);
-
+function generateFrame (frame: Frame, padding = DEFAULT_PADDING): ImageData {
   if (!Frame.isFrame(frame)) {
     throw new Error('invalid frame');
   }
@@ -58,7 +56,7 @@ function generateFrame (frame, padding = DEFAULT_PADDING) {
   }
 
   const width = 1;
-  const height = frame.spikes.length;
+  const height = frame.length;
   const paddedHeight = height + (padding * 2);
   const arr = new Uint8ClampedArray(width * paddedHeight * 4);
 
@@ -75,7 +73,7 @@ function generateFrame (frame, padding = DEFAULT_PADDING) {
     }
 
     const spikeIndex = pixelIndex - padding;
-    const isSpike = frame.spikes[spikeIndex];
+    const isSpike = frame.electrodeReadings.at(spikeIndex);
 
     if (!isSpike) {
       // make it opaque
@@ -92,9 +90,17 @@ function generateFrame (frame, padding = DEFAULT_PADDING) {
   return new ImageData(arr, width, paddedHeight);
 }
 
-const SpikePlot = (props) => {
+interface SpikePlotProps {
+  laceFrequency: number,
+  laceBandwidth: number,
+  plotTime: number,
+  padding: number,
+  trackerWidth: number,
+  frame: Frame,
+}
+
+const SpikePlot = (props: SpikePlotProps) => {
   const {
-    startTime,
     // how many frames per second
     laceFrequency,
     // how many data points per frame
@@ -114,20 +120,20 @@ const SpikePlot = (props) => {
   // The index to use to display the current frame
   const [frameDisplayIndex, setFrameDisplayIndex] = useState(0);
   // The HTML canvas 2d context that the frames will be drawn to
-  const [canvasContext, setCanvasContext] = useState(null);
-  const [trackerBar, setTrackerBar] = useState(null);
+  const [canvasContext, setCanvasContext] = useState<CanvasRenderingContext2D | null>(null);
+  const [trackerBar, setTrackerBar] = useState<ImageData | null>(null);
 
   const width = laceFrequency * plotTime;
   const height = laceBandwidth;
   const paddedHeight = height + (padding * 2);
 
   // we use a ref to access the canvas' DOM node
-  const canvasRef = useRef(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
     console.log('canvas ref changed');
 
-    if (!canvasRef.current) {
+    if (!canvasRef?.current) {
       console.log('canvas not yet loaded');
       return;
     }
@@ -144,6 +150,11 @@ const SpikePlot = (props) => {
 
     if (canvasContext === null) {
       console.log('waiting for canvas');
+      return;
+    }
+
+    if (trackerBar === null) {
+      console.log('trackerBar not ready');
       return;
     }
 

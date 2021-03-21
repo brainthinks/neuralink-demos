@@ -8,11 +8,11 @@ export const DEFAULT_PADDING = 0;
  *
  * Should only need to be called/set once.
  *
- * @param {Number} width
+ * @param {number} width
  *   Integer representing the width (in pixels) of the tracker bar
- * @param {Number} height
+ * @param {number} height
  *   Integer representing the height (in pixels) of the tracker bar (without padding)
- * @param {Number} [padding]
+ * @param {number} [padding]
  *   Integer representing the y-axis padding (in pixels) of the tracker bar.
  *   This should be the same as the padding on the plot.
  *   Defaults to 0.
@@ -20,13 +20,11 @@ export const DEFAULT_PADDING = 0;
  * @returns {ImageData}
  *   The tracker bar as an ImageData instance that can be applied to a canvas
  */
-export function generateTrackerBar (width, height, padding = DEFAULT_PADDING) {
-  // Sanitize ------------------------------------------------------------------
-  width = Number(width);
-  height = Number(height);
-  padding = Number(padding);
-  // ---------------------------------------------------------------------------
-
+export function generateTrackerBar (
+  width: number,
+  height: number,
+  padding = DEFAULT_PADDING,
+): ImageData {
   // Validate ------------------------------------------------------------------
   if (!Number.isInteger(width)) {
     throw new Error('valid integer for `width` argument is required to generate the tracker bar');
