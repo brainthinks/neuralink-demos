@@ -21,10 +21,9 @@ import FrameService from '../models/FrameService';
 import Frame from '../models/Frame';
 import ControlBar from './ControlBar';
 import StatusBar from './StatusBar';
-import SpikePlot from './SpikePlot';
-import SpikeGraph from './SpikeGraph';
+import SpikeVisualizer from './SpikeVisualizer';
 
-import './App.css';
+import './App.scss';
 
 const SUBJECT_NAME = 'Gertie';
 const FRAME_SERVER_URL = 'local';
@@ -39,7 +38,7 @@ const LACE_BANDWIDTH = 1024;
 // How many seconds worth of data are we going to show
 const DISPLAY_DURATION = 10;
 
-const DEFAULT_TRACKER_WIDTH = 3;
+const DEFAULT_TRACKER_WIDTH = 1;
 
 // This padding is only needed for eyeballing the pixel precision of the spike
 // plot canvas element.  There is no need to use this in production.
@@ -49,14 +48,17 @@ const frameService = FrameService.asSingleton(FRAME_SERVER_URL, LACE_BANDWIDTH);
 
 function App () {
   const isVisible = usePageVisibility();
-  const [ isMonitoring, setIsMonitoring ] = useState(false);
-  const [ nextFrame, setNextFrame ] = useState<Frame|null>(null);
+  const [isMonitoring, setIsMonitoring] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
+  const [nextFrame, setNextFrame] = useState<Frame | null>(null);
+  const [frameIndex, setFrameIndex] = useState(0);
 
   async function getNextFrame () {
     try {
       const frame = await frameService.getNextFrame();
 
       setNextFrame(frame);
+      setFrameIndex(frameIndex);
     }
     catch (error) {
       // @todo - display error message to user
@@ -75,36 +77,33 @@ function App () {
 
     MainLoop.setBegin(getNextFrame).start();
     document.title = "Monitoring your neural lace!"
-  }, [isVisible, isMonitoring]);
+  },
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  [
+    isVisible,
+    isMonitoring,
+  ]);
 
   return (
     <div className="App">
       <ControlBar
         name={SUBJECT_NAME}
         isMonitoring={isVisible && isMonitoring}
+        isMuted={isMuted}
         setIsMonitoring={setIsMonitoring}
+        setIsMuted={setIsMuted}
       />
-      <section className="spike-visualization">
-        <div className="spike-plot">
-          <SpikePlot
-            laceFrequency={LACE_FREQUENCY}
-            laceBandwidth={LACE_BANDWIDTH}
-            plotTime={DISPLAY_DURATION}
-            padding={DEFAULT_PADDING}
-            trackerWidth={DEFAULT_TRACKER_WIDTH}
-            frame={nextFrame as Frame}
-          />
-        </div>
-        <div className="spike-graph">
-          <SpikeGraph
-            laceFrequency={LACE_FREQUENCY}
-            laceBandwidth={LACE_BANDWIDTH}
-            plotTime={DISPLAY_DURATION}
-            padding={DEFAULT_PADDING}
-            trackerWidth={DEFAULT_TRACKER_WIDTH}
-            frame={nextFrame as Frame}
-          />
-        </div>
+      <section className="spike-visualizer">
+        <SpikeVisualizer
+          isMonitoring={isVisible && isMonitoring}
+          isMuted={isMuted}
+          laceFrequency={LACE_FREQUENCY}
+          laceBandwidth={LACE_BANDWIDTH}
+          plotTime={DISPLAY_DURATION}
+          padding={DEFAULT_PADDING}
+          trackerWidth={DEFAULT_TRACKER_WIDTH}
+          frame={nextFrame as Frame}
+        />
       </section>
       <StatusBar
         isMonitoring={isVisible && isMonitoring}

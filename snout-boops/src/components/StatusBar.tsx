@@ -87,7 +87,12 @@ function StatusBar (props: Props) {
       setTotalHeapSize(getMemoryInfo(PerformanceMemoryProperties.totalJSHeapSize));
       setUsedHeapSize(getMemoryInfo(PerformanceMemoryProperties.usedJSHeapSize));
     }, 500));
-  }, [isMonitoring, startTime]);
+  },
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  [
+    isMonitoring,
+    startTime,
+  ]);
 
   return (
     <section className="statusBar">
