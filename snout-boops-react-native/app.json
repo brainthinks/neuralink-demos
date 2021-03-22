@@ -5,8 +5,6 @@
     "name": "snout-boops-react-native",
     "slug": "snout-boops-react-native",
     "version": "1.0.0",
-    "assetBundlePatterns": [
-      "**/*"
-    ]
+    "assetBundlePatterns": ["**/*"]
   }
 }
