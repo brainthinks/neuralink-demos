@@ -1,0 +1,6 @@
+{
+  "devDependencies": {
+    "create-react-app": "^4.0.3",
+    "create-react-native-app": "^3.6.0"
+  }
+}
