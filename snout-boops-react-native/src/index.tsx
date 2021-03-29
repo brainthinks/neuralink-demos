@@ -32,15 +32,15 @@ export default function App () {
   const [splashScreenFinished, setSplashScreenFinished] = useState(false);
   const [welcomeTextFinished, setWelcomeTextFinished] = useState(false);
 
-  // if (!splashScreenFinished) {
-  //   return (
-  //     <View style={styles.splashScreen}>
-  //       <SplashScreen onFinished={() => {
-  //         setSplashScreenFinished(true);
-  //       }}/>
-  //     </View>
-  //   );
-  // }
+  if (!splashScreenFinished) {
+    return (
+      <View style={styles.splashScreen}>
+        <SplashScreen onFinished={() => {
+          setSplashScreenFinished(true);
+        }}/>
+      </View>
+    );
+  }
 
   // if (!welcomeTextFinished) {
   return (
